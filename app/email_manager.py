@@ -34,5 +34,6 @@ def receive():
 
 
 def get_recipient():
+    # TODO this should be the list of notification emails for the server
     addressee = [config.RECIPIENT]
     return addressee
