@@ -12,7 +12,13 @@ def show_menu(options_list):
 
 
 def main():
-    pass
+    options = [
+        "user_administration",
+        "add monitoring",
+        "manual server check",
+        "stop program"
+    ]
+    print(show_menu(options))
 
 
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ from app import config
 # https://myaccount.google.com/lesssecureapps
 
 
-def send(message,subject=""):
+def send(message, subject=""):
     try:
         username = config.EMAIL_ADDR
         password = config.EMAIL_PASS
