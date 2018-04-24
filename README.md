@@ -29,5 +29,4 @@ currently gmail supported only. More email services supported in future.
 
 Recommended: create a new account solely for app notifications.
 
-
-
+rename config.txt to config.py and update info in file accordingly.
