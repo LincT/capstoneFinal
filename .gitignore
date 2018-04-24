@@ -1,8 +1,8 @@
 # project specific omissions #
 ##############################
 app/scratchpad.py  # experimental code not suitable for github
-*config.py  # sensitive things like passwords
-settings.py # git ignore test
+app/config.py  # sensitive things like passwords
+app/settings.py # git ignore test
 
 # https://gist.github.com/octocat/9257657
 # Compiled source #

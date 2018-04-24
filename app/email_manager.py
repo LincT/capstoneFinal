@@ -1,4 +1,5 @@
 import smtplib  # https://docs.python.org/3/library/smtplib.html
+import email  # https://docs.python.org/3/library/email.html
 from app import config
 
 
@@ -16,11 +17,11 @@ def send(message,subject=""):
             email_server.starttls()
             email_server.login(user=username, password=password)
             email_server.sendmail(
-                from_addr="",
-                to_addrs=[],
-                msg="",
+                from_addr=config.EMAIL_ADDR,
+                to_addrs=get_recipient(),
+                msg=message,
                 mail_options=[],
-                rcpt_options=[]
+                rcpt_options=[],
             )
 
     except smtplib.SMTPException as e:
@@ -33,5 +34,5 @@ def receive():
 
 
 def get_recipient():
-    addressee = []
+    addressee = [config.RECIPIENT]
     return addressee
