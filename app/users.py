@@ -15,24 +15,24 @@ class UserManager:
         """
         create a class instance to manage users and access
         """
-        # self.UserCache.drop_table(self.table_name)
+        # self.DBCache.drop_table(self.table_name)
         self.UserCache.create_table(self.table_name,
                                     'user_id integer PRIMARY KEY AUTOINCREMENT, '
                                     'username text NOT NULL UNIQUE, '
                                     'password_hash text NOT NULL,'
                                     'utc_datetime_added text NOT NULL,'
-                                    'locked ')
+                                    'locked text NOT NULL')
 
     def __str__(self):
         """
         might refactor this to live in sql_handler
         :return:
         """
-        tables = [str(each) for each in self.UserCache.spew_tables()]
+        tables = [str(each) for each in self.DBCache.spew_tables()]
         verbose_table_data = ""
         for each in tables:
-            fields = ", ".join(item for item in self.UserCache.spew_header(each))
-            contents = "\n".join("\t\t" + str(item) for item in self.UserCache.execute_query(each))
+            fields = ", ".join(item for item in self.DBCache.spew_header(each))
+            contents = "\n".join("\t\t" + str(item) for item in self.DBCache.execute_query(each))
             verbose_table_data += str("table: " + each + "\n\tfields: " + fields + "\n\tcontents:\n" + contents)
 
         return verbose_table_data
