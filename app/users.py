@@ -23,20 +23,6 @@ class UserManager:
                                     'utc_datetime_added text NOT NULL,'
                                     'locked text NOT NULL')
 
-    def __str__(self):
-        """
-        might refactor this to live in sql_handler
-        :return:
-        """
-        tables = [str(each) for each in self.DBCache.spew_tables()]
-        verbose_table_data = ""
-        for each in tables:
-            fields = ", ".join(item for item in self.DBCache.spew_header(each))
-            contents = "\n".join("\t\t" + str(item) for item in self.DBCache.execute_query(each))
-            verbose_table_data += str("table: " + each + "\n\tfields: " + fields + "\n\tcontents:\n" + contents)
-
-        return verbose_table_data
-
     def add_user(self, username, password):
         pass
 
@@ -44,4 +30,7 @@ class UserManager:
         pass
 
     def validate_user(self):
-        pass
+        username = input("username?\n")
+        password = input("password?\n")
+        # TODO insert some hash validation here as we don't store passwords in our db... ever
+        return True
