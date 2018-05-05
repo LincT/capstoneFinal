@@ -23,6 +23,12 @@ class UserManager:
                                     'utc_datetime_added text NOT NULL,'
                                     'locked text NOT NULL')
 
+    def __str__(self):
+        fields = ", ".join(item for item in self.DBCache.spew_header(self.table_name))
+        contents = "\n".join("\t\t" + str(item) for item in self.DeviceCache.execute_query(self.table_name))
+        table_data = str("table: " + self.table_name + "\n\tfields: " + fields + "\n\tcontents:\n" + contents)
+        return table_data
+
     def add_user(self, username, password):
         pass
 
@@ -33,4 +39,7 @@ class UserManager:
         username = input("username?\n")
         password = input("password?\n")
         # TODO insert some hash validation here as we don't store passwords in our db... ever
-        return True
+        if username and password:
+            return True
+        else:
+            return False
