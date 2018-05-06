@@ -26,10 +26,12 @@ class TestMain(TestCase):
         # doesn't work to remove at teardown class as db is
         # apparently still in use during runtime?
         # this has no real function if db lives in :memory:
-        print('setup_class\n')
-        database_name = "test.db"
-        if str(listdir(".")).find(database_name) >= 0:
-            remove(database_name)
+        # print('setup_class\n')
+        # database_name = "test.db"
+        # if str(listdir(".")).find(database_name) >= 0:
+        #     remove(database_name)
+        # obsolete since test db now lives in memory, leaving in
+        # comment however for posterity
         pass
 
     @classmethod

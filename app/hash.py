@@ -3,17 +3,8 @@ import uuid
 import hashlib
 
 
-class HashConverter:
-    @staticmethod
-    def convert(string):
-        hashString = ""
-        if string != "":
-            hashString = hashlib.sha1(string)
-        return hashString
-
-
 # https://www.pythoncentral.io/hashing-strings-with-python/
-class HashTest:
+class HashHandler:
     @staticmethod
     def hash_password(password):
         # uuid is used to generate a random number

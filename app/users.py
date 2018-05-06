@@ -5,7 +5,8 @@
 
 from app.sql_handler import DataBaseIO as dbio
 import getpass
-import app.hash
+from app.hash import HashHandler
+
 
 class UserManager:
 
@@ -40,10 +41,12 @@ class UserManager:
         users = self.UserCache.execute_query(self.table_name)
         if users:
             username = input("username?\n")
-            password = hash(getpass.getpass("password?\n"))
-            stored_pass_hash = self.UserCache.execute_query(self.table_name,"password_hash", password)
-        # TODO insert some hash validation here as we don't store passwords in our db... ever
-        if username and password:
-            return True
+            password = HashHandler.hash_password(getpass.getpass("password?\n"))
+            # some hash validation here as we don't want to store passwords in our db... ever
+            stored_pass_hash = self.UserCache.execute_query(self.table_name, "password_hash", username)
+            return HashHandler.check_password(hashed_password=stored_pass_hash, user_password=password)
+
         else:
-            return False
+            print("No Users defined, add a user to secure application data")
+            # allow insecure setup until user sets up an account, otherwise first time use would
+            return True
