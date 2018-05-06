@@ -1,6 +1,6 @@
 import sqlite3
 import datetime  # because timestamps help record keeping
-
+# possibly modifying this in future to make use of peewee or sqlalchemy
 
 class DataBaseIO:
     # this class should handle all of the sql work, and return only standard memory objects
@@ -10,6 +10,20 @@ class DataBaseIO:
     def __init__(self, dbname):
         self.__db__ = sqlite3.connect(dbname)
         self.__cur__ = self.__db__.cursor()
+
+    def __str__(self):
+        """
+        refactored this to live in sql_handler
+        :return:
+        """
+        tables = [str(each) for each in self.spew_tables()]
+        verbose_table_data = ""
+        for each in tables:
+            fields = ", ".join(item for item in self.spew_header(each))
+            contents = "\n".join("\t\t" + str(item) for item in self.execute_query(each))
+            verbose_table_data += str("table: " + each + "\n\tfields: " + fields + "\n\tcontents:\n" + contents)
+
+        return verbose_table_data
 
     def __execute_sql__(self, sql=""):
         with self.__db__:
@@ -33,6 +47,9 @@ class DataBaseIO:
                 tables.append(",".join(each))
         return tables
 
+
+
+
     def execute_query(self, table, select='*', parm='', regex=''):
         # returns data as a list, each row as a tuple
         # stripping out some characters known for sql injection attacks
@@ -40,11 +57,11 @@ class DataBaseIO:
         select = select.strip("'").strip(";")
         parm = parm.strip("'").strip(";")
         regex = regex.strip("'").strip(";")
-        results = None
+        # results = None  # perhaps this isn't needed?
         if parm != '' and len(tuple(parm)) == 1:
             results = self.__cur__.execute(
                 "select {} from {} where {} = '{}'".format(select, table, parm, regex)).fetchall()
-        if len(tuple(parm)) > 1:
+        elif len(tuple(parm)) > 1:
             results = []
             i = 0
             while i < len(parm):

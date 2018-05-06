@@ -4,7 +4,8 @@
 # if last user deleted and someone tries to log in, work as new user, delete configured data and start as new app
 
 from app.sql_handler import DataBaseIO as dbio
-
+import getpass
+import app.hash
 
 class UserManager:
 
@@ -36,8 +37,11 @@ class UserManager:
         pass
 
     def validate_user(self):
-        username = input("username?\n")
-        password = input("password?\n")
+        users = self.UserCache.execute_query(self.table_name)
+        if users:
+            username = input("username?\n")
+            password = hash(getpass.getpass("password?\n"))
+            stored_pass_hash = self.UserCache.execute_query(self.table_name,"password_hash", password)
         # TODO insert some hash validation here as we don't store passwords in our db... ever
         if username and password:
             return True
