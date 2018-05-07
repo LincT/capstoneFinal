@@ -8,9 +8,14 @@ from app.device_manager import DeviceManager
 import app.email_manager as alerts
 import threading
 from app.conntest import ConnectionTester
+from app import config
 
 devices = DeviceManager()
 users = UserManager()
+
+logging.basicConfig(filename="event_log.log", level=logging.INFO)
+logger = logging.getLogger('network_events')
+
 
 def show_menu(options_list):
     """
@@ -48,7 +53,9 @@ def timed_execution(increment=1):
 
 
 def user_administration():
+    # placeholder for integrating user management class to ui
     print("user_administration ran")
+    pass
 
 
 def monitoring():
@@ -66,50 +73,83 @@ def monitoring():
 
 def manual_server_check():
     host = input("host dns or ipv4?\n")
-    port = int(input("port on host to check?\n"))
-    ConnectionTester.conn_check(host=host, port=port)
+    port = input("port on host to check?\n")
+    if port.isnumeric():
+        port = int(port)
+        ConnectionTester.conn_check(host=host, port=port)
+    else:
+        success = "ping successful for {}".format(host)
+        failure = "ping failed to reach {}".format(host)
+        print(success if ConnectionTester.ping_check(hostname=host) == 0 else failure)
 
 
 def run_service():
-    device = namedtuple("device",
-                        "device_id "
-                        "utc_datetime_added "
-                        "device_name "
-                        "dns "
-                        "ipv4 "
-                        "port "
-                        "check_interval, "
-                        "recheck_interval, "
-                        "notifications_list "
-                        "recurring_downtime "
-                        "maintenance_downtime")
+    device = namedtuple("device", ["device_id", "utc_datetime_added", "device_name", "dns", "ipv4", "port",
+                                   "check_interval", "recheck_interval", "notifications_list",
+                                   "recurring_downtime", "maintenance_downtime"])
     device_data = devices.spew_devices()
 
     if device_data is None:
         print("no devices setup for monitoring")
 
     else:
+        current_alerts = {}
+        main_failure = False
         while True:
-            for each in devices.spew_devices():
-                map(device, each)
+            debug_url = "www.google.com"  # TODO these should be user configurable
+            debug_ipv4 = "8.8.8.8"
+            if ConnectionTester.ping_check(debug_url) != 0:  # verify dns services can resolve a known ip
+                logging.warning("{} dns resolution for {} failed".format(datetime.datetime, debug_url))
+                if ConnectionTester.ping_check(debug_ipv4) != 0:  # if not check if known good ip resolves
+                    # both ip4 and dns down, checking devices becomes irrelevant, hold status until those resolve
+                    # if that fails individual devices behind the server cannot function
+                    logging.error("ping {} failed".format(debug_ipv4))
+                    continue  # continue service to check for recovery
+
+            else:
+                if main_failure:
+                    message_string = "Network failure was detected. This alert indicates possible recovery"
+                    send_email(subject="network recovery", email=config.RECIPIENT, message=message_string)
+
+                for each in devices.spew_devices():
+                    map(device, each)
+                    if device.dns != "":  # if a dns is specified for the device
+                        if ConnectionTester.check_socket(device.dns, device.port) != 0:
+                            logging.warning("port failure for {}".format(device.device_name))
+
             # print("service running", time.gmtime())
             time.sleep(60)
 
 
-def send_alert():
-    pass
+def send_email(**kwargs):
+    """
+    message     specifies the main body of the email to be sent
 
+    subject     specifies what is put into the title of the email
 
-def send_email():
-    print("send email function")
-    pass
+    recipient   must be a valid email, otherwise the email will
+                not reach it's target
+    """
+
+    if kwargs:  # if there's arguments, then we can process
+        message = kwargs.get("message", "")
+        recipient = kwargs.get("email", None)
+        subject = kwargs.get("subject", "")
+        alerts.send_email(recipient=recipient, message_string=message, subject=subject)
+    else:  # get user to input values if no kwargs
+        recipient = input("destination email:\n")
+        subject = input("subject:\n")
+        message = input("message to send:\n")
+        if input("send message?\n")[0].lower() == "y":
+            alerts.send_email(recipient=recipient, message_string=message, subject=subject)
 
 
 def quit_program():
+    # wrapper function
     exit(0)
 
 
-def user_IO():
+def user_interface():
     auth = False
     while not auth:
         auth = users.validate_user()
@@ -124,12 +164,13 @@ def user_IO():
     }
     selection = show_menu([each for each in options.keys()])
     options[selection]()  # call the function from the dictionary
-    user_IO()
+    user_interface()
+
 
 def main():
 
     daemon = threading.Thread(target=run_service(), daemon=True)
-    main_task = threading.Thread(target=user_IO())
+    main_task = threading.Thread(target=user_interface())
 
     main_task.start()
     daemon.start()

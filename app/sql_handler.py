@@ -2,6 +2,7 @@ import sqlite3
 import datetime  # because timestamps help record keeping
 # possibly modifying this in future to make use of peewee or sqlalchemy
 
+
 class DataBaseIO:
     # this class should handle all of the sql work, and return only standard memory objects
     __db__ = None
@@ -46,9 +47,6 @@ class DataBaseIO:
             for each in tables_tup:
                 tables.append(",".join(each))
         return tables
-
-
-
 
     def execute_query(self, table, select='*', parm='', regex=''):
         # returns data as a list, each row as a tuple
@@ -127,4 +125,3 @@ class DataBaseIO:
     def get_date_time():
         # returning utc for consistency regardless of locale or daylight savings rules
         return datetime.datetime.utcnow()
-

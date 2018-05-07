@@ -12,9 +12,10 @@ class ConnectionTester:
         print("dns good" if ConnectionTester.ping_check("www.google.com") == 0 else "dns failure")
         print("network connection good" if ConnectionTester.ping_check("8.8.8.8") == 0 else "network failure")
         print("loopback good" if ConnectionTester.ping_check("127.0.0.1") == 0 else "loopback failure")
+        print("\n")
 
     @staticmethod
-    def check_socket(host, port, timeout):
+    def check_socket(host, port, timeout=1):
         # https://stackoverflow.com/a/35370008
         # https://docs.python.org/3/library/socket.html#socket.socket.settimeout
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:

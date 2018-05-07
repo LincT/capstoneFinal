@@ -35,13 +35,15 @@ def send_email(recipient, message_string, subject=""):
             email_server.ehlo()
             email_server.starttls()
             email_server.login(user=username, password=password)
-            email_server.sendmail(
-                from_addr=config.EMAIL_ADDR,
-                to_addrs=recipient,
-                msg=message.as_string(),
-                mail_options=[],
-                rcpt_options=[],
-            )
+            if recipient:
+                email_server.sendmail(
+                    from_addr=config.EMAIL_ADDR,
+                    to_addrs=recipient,
+                    msg=message.as_string(),
+                    mail_options=[],
+                    rcpt_options=[],
+                )
+        return "message sent"
 
     except smtplib.SMTPException as e:
-        print(e.strerror)
+        return e.strerror

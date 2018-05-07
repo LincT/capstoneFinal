@@ -1,6 +1,12 @@
 network monitoring program
 
-Working title: LincMon
+Working title: Plant
+
+Pythonic
+Lightweight
+Adaptable
+Networking
+Tool
 
 features:
 
