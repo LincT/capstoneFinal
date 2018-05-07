@@ -32,7 +32,7 @@ class DeviceManager:
                                       )
 
     def __str__(self):
-        fields = ", ".join(item for item in self.DBCache.spew_header(self.table_name))
+        fields = ", ".join(item for item in self.DeviceCache.spew_header(self.table_name))
         contents = "\n".join("\t\t" + str(item) for item in self.DeviceCache.execute_query(self.table_name))
         table_data = str("table: " + self.table_name + "\n\tfields: " + fields + "\n\tcontents:\n" + contents)
         return table_data
@@ -40,14 +40,14 @@ class DeviceManager:
     def add_device(self):
         # this needs a whole lot of input validation
         # TODO validate all the things!!!
-        utc_datetime_added = self.DeviceCache.get_date_time()
+        utc_datetime_added = str(self.DeviceCache.get_date_time())
         device_name = input("please enter the device name to add:\n")
         dns = input("dns for service(if applicable, enter for none)\n")
         ipv4 = input("ipv4 address\n")
-        port = int(input("port number?\n"))
-        check_interval = int(input("how often should it be checked in minutes?\n"))
-        recheck_interval = int(input("if it fails, how soon should the system recheck in minutes?\n"))
-        notifications_list = [].append(input("who should the system email first for issues?\n"))
+        port = input("port number?\n")
+        check_interval = input("how often should it be checked in minutes?\n")
+        recheck_interval = input("if it fails, how soon should the system recheck in minutes?\n")
+        notifications_list = str([].append(input("who should the system email first for issues?\n")))
         field_names = "utc_datetime_added, device_name, dns, ipv4, port, " \
                       "check_interval, recheck_interval, notifications_list"
         print("\n".join(
@@ -65,4 +65,9 @@ class DeviceManager:
         pass
 
     def spew_devices(self):
-        self.DeviceCache.execute_query(self.table_name)
+        devices = self.DeviceCache.execute_query(self.table_name)
+        if devices:
+            return devices
+        else:
+            print("no devices setup for monitoring.\n")
+            return None

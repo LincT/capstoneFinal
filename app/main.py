@@ -74,51 +74,53 @@ def monitoring():
 def manual_server_check():
     host = input("host dns or ipv4?\n")
     port = input("port on host to check?\n")
-    if port.isnumeric():
-        port = int(port)
-        ConnectionTester.conn_check(host=host, port=port)
+    if host == "demo":
+        ConnectionTester.conn_check("map.minectc.com", 80)
     else:
-        success = "ping successful for {}".format(host)
-        failure = "ping failed to reach {}".format(host)
-        print(success if ConnectionTester.ping_check(hostname=host) == 0 else failure)
+        if port.isnumeric():
+            port = int(port)
+            success = "socket check successful for port {} on {}".format(port, host)
+            failure = "no response from port {} on {}".format(port, host)
+            print(success if ConnectionTester.check_socket(host=host, port=port) == 0 else failure)
+        else:
+            success = "ping successful for {}".format(host)
+            failure = "ping failed to reach {}".format(host)
+            print(success if ConnectionTester.ping_check(hostname=host) == 0 else failure)
 
 
 def run_service():
     device = namedtuple("device", ["device_id", "utc_datetime_added", "device_name", "dns", "ipv4", "port",
                                    "check_interval", "recheck_interval", "notifications_list",
                                    "recurring_downtime", "maintenance_downtime"])
-    device_data = devices.spew_devices()
 
-    if device_data is None:
-        print("no devices setup for monitoring")
+    current_alerts = {}
+    main_failure = False
+    while True:
+        debug_url = "www.google.com"  # TODO these should be user configurable
+        debug_ipv4 = "8.8.8.8"
+        if ConnectionTester.ping_check(debug_url) != 0:  # verify dns services can resolve a known ip
+            logging.warning("{} dns resolution for {} failed".format(datetime.datetime, debug_url))
+            if ConnectionTester.ping_check(debug_ipv4) != 0:  # if not check if known good ip resolves
+                # both ip4 and dns down, checking devices becomes irrelevant, hold status until those resolve
+                # if that fails individual devices behind the server cannot function
+                logging.error("ping {} failed".format(debug_ipv4))
+                continue  # continue service to check for recovery
 
-    else:
-        current_alerts = {}
-        main_failure = False
-        while True:
-            debug_url = "www.google.com"  # TODO these should be user configurable
-            debug_ipv4 = "8.8.8.8"
-            if ConnectionTester.ping_check(debug_url) != 0:  # verify dns services can resolve a known ip
-                logging.warning("{} dns resolution for {} failed".format(datetime.datetime, debug_url))
-                if ConnectionTester.ping_check(debug_ipv4) != 0:  # if not check if known good ip resolves
-                    # both ip4 and dns down, checking devices becomes irrelevant, hold status until those resolve
-                    # if that fails individual devices behind the server cannot function
-                    logging.error("ping {} failed".format(debug_ipv4))
-                    continue  # continue service to check for recovery
+        else:
+            if main_failure:
+                message_string = "Network failure was detected. This alert indicates possible recovery"
+                send_email(subject="network recovery", email=config.RECIPIENT, message=message_string)
 
-            else:
-                if main_failure:
-                    message_string = "Network failure was detected. This alert indicates possible recovery"
-                    send_email(subject="network recovery", email=config.RECIPIENT, message=message_string)
-
-                for each in devices.spew_devices():
+            device_list = devices.spew_devices()  # check for updated list
+            if device_list:
+                for each in device_list:
                     map(device, each)
                     if device.dns != "":  # if a dns is specified for the device
-                        if ConnectionTester.check_socket(device.dns, device.port) != 0:
+                        if ConnectionTester.check_socket(str(device.dns), str(device.port)) != 0:
                             logging.warning("port failure for {}".format(device.device_name))
 
-            # print("service running", time.gmtime())
-            time.sleep(60)
+        print("service running", time.gmtime())
+        time.sleep(60)
 
 
 def send_email(**kwargs):
@@ -168,9 +170,8 @@ def user_interface():
 
 
 def main():
-
-    daemon = threading.Thread(target=run_service(), daemon=True)
     main_task = threading.Thread(target=user_interface())
+    daemon = threading.Thread(target=run_service(), daemon=True)
 
     main_task.start()
     daemon.start()
