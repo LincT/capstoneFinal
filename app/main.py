@@ -95,7 +95,9 @@ def run_service():
 
     current_alerts = {}
     main_failure = False
+    print("service pre-loop")
     while True:
+        print("service loop")
         debug_url = "www.google.com"  # TODO these should be user configurable
         debug_ipv4 = "8.8.8.8"
         if ConnectionTester.ping_check(debug_url) != 0:  # verify dns services can resolve a known ip
@@ -177,6 +179,7 @@ def main():
     daemon.start()
 
     main_task.join()
+    daemon.join()
 
 
 if __name__ == '__main__':
