@@ -95,9 +95,7 @@ def run_service():
 
     current_alerts = {}
     main_failure = False
-    print("service pre-loop")
     while True:
-        print("service loop")
         debug_url = "www.google.com"  # TODO these should be user configurable
         debug_ipv4 = "8.8.8.8"
         if ConnectionTester.ping_check(debug_url) != 0:  # verify dns services can resolve a known ip
@@ -120,8 +118,6 @@ def run_service():
                     if device.dns != "":  # if a dns is specified for the device
                         if ConnectionTester.check_socket(str(device.dns), str(device.port)) != 0:
                             logging.warning("port failure for {}".format(device.device_name))
-
-        print("service running", time.gmtime())
         time.sleep(60)
 
 
@@ -172,8 +168,8 @@ def user_interface():
 
 
 def main():
-    main_task = threading.Thread(target=user_interface())
-    daemon = threading.Thread(target=run_service(), daemon=True)
+    main_task = threading.Thread(target=user_interface)  # need to drop () when specifying target
+    daemon = threading.Thread(target=run_service, daemon=False)
 
     main_task.start()
     daemon.start()

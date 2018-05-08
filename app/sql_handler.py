@@ -9,7 +9,7 @@ class DataBaseIO:
     __cur__ = None
 
     def __init__(self, dbname):
-        self.__db__ = sqlite3.connect(dbname)
+        self.__db__ = sqlite3.connect(dbname, check_same_thread=False)
         self.__cur__ = self.__db__.cursor()
 
     def __str__(self):
