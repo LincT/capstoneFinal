@@ -13,7 +13,7 @@ class TestMain(TestCase):
         # if this fails verify class init method working properly and
         # all arguments passed to init correctly
 
-        self.database = DataBaseIO(':memory:')
+        self.database = DataBaseIO(':memory:')  # we don't really need the test db to persist.
         self.cursor = self.database.__cur__
 
     def tearDown(self):
