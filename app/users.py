@@ -26,8 +26,8 @@ class UserManager:
                                     'locked text NOT NULL')
 
     def __str__(self):
-        fields = ", ".join(item for item in self.DBCache.spew_header(self.table_name))
-        contents = "\n".join("\t\t" + str(item) for item in self.DeviceCache.execute_query(self.table_name))
+        fields = ", ".join(item for item in self.UserCache.spew_header(self.table_name))
+        contents = "\n".join("\t\t" + str(item) for item in self.UserCache.execute_query(self.table_name))
         table_data = str("table: " + self.table_name + "\n\tfields: " + fields + "\n\tcontents:\n" + contents)
         return table_data
 
@@ -50,3 +50,6 @@ class UserManager:
             print("No Users defined, add a user to secure application data")
             # allow insecure setup until user sets up an account, otherwise first time use would
             return True
+
+    def spew_users(self):
+        print(self.__str__())

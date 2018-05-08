@@ -44,7 +44,7 @@ def timed_execution(increment=1):
     current_minute = int(datetime.datetime.utcnow().strftime("%M"))+1
 
     # to determine if we are to do the thing, see if the chosen increment
-    # divides perfectly into the current second (1-60)
+    # divides perfectly into the current minute (1-60)
     if current_minute % increment == 0:
         # do the thing
         return True
@@ -53,8 +53,13 @@ def timed_execution(increment=1):
 
 
 def user_administration():
-    # placeholder for integrating user management class to ui
-    print("user_administration ran")
+    options = {
+        "list all": users.spew_users,
+        "add user": users.add_user,
+        "remove user": devices.remove_device,
+        }
+    selection = show_menu([each for each in options.keys()])
+    options[selection]()  # call the function from the dictionary
     pass
 
 
