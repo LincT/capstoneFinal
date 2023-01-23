@@ -18,7 +18,7 @@ PyJWT==1.5.3
 pythonanywhere==0.0.12
 pytz==2018.3
 requests==2.20.0
-spotipy==2.4.4
+spotipy==2.22.1
 urllib3==1.26.5
 virtualenv==15.1.0
 Werkzeug==0.15.3
